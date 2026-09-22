@@ -45,7 +45,7 @@ spec:
   }
 
   options {
-    timestamps()
+    // timestamps() needs the Timestamper plugin, which is not installed.
     buildDiscarder(logRotator(numToKeepStr: '20'))
   }
 
