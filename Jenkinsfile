@@ -55,8 +55,13 @@ spec:
         script {
           // Immutable tag. Never :latest -- Argo CD cannot detect drift or roll
           // back against a floating tag.
-          env.TAG = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
-          echo "Building ${env.IMAGE}:${env.TAG}"
+          //
+          // Taken from env.GIT_COMMIT, which the SCM checkout sets, rather than
+          // shelling out to git: sh steps run in the Kaniko container by
+          // default and that image ships busybox without a git binary.
+          if (!env.GIT_COMMIT) { error 'GIT_COMMIT is unset - is this job configured as "Pipeline script from SCM"?' }
+          env.TAG = env.GIT_COMMIT.take(7)
+          echo "Building ${env.IMAGE}:${env.TAG} from ${env.GIT_COMMIT}"
         }
       }
     }
